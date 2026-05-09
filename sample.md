@@ -45,7 +45,7 @@ Ordered list:
 
 Auto-linked URL: https://example.com
 
-![Sample Image](https://via.placeholder.com/600x200/667eea/ffffff?text=SkippyMD+Sample+Image)
+![Sample Image](https://picsum.photos/600/200)
 
 ## Code Blocks
 
