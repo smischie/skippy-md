@@ -474,8 +474,17 @@ button:hover {
 
 .math-block {
     overflow-x: auto;
-    padding: 16px 0;
+    padding: 24px 0;
     text-align: center;
+    font-size: 1.3em;
+}
+
+.math-block .katex-display {
+    margin: 0;
+}
+
+.math-inline .katex {
+    font-size: 1.1em;
 }
 
 /* Mermaid */
