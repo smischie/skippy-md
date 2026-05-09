@@ -15,11 +15,10 @@ const md = window.markdownit({
     highlight: function (str, lang) {
         if (lang && hljs.getLanguage(lang)) {
             try {
-                const highlighted = hljs.highlight(str, { language: lang }).value;
-                return `<pre class="hljs"><code class="language-${lang}"><button class="copy-code" title="Copy code">📋</button>${highlighted}</code></pre>`;
+                return hljs.highlight(str, { language: lang }).value;
             } catch (__) {}
         }
-        return `<pre class="hljs"><code><button class="copy-code" title="Copy code">📋</button>${md.utils.escapeHtml(str)}</code></pre>`;
+        return ''; // Use default escaping
     }
 })
 .use(window.markdownitFootnote)
@@ -68,11 +67,18 @@ async function loadMarkdown() {
             document.getElementById('markdown-content').innerHTML = `<p class="error">Failed to load: ${e.message}</p>`;
         }
     } else if (file) {
-        // Try to load from storage
-        const stored = sessionStorage.getItem('skippymd-content');
-        if (stored) {
-            renderMarkdown(stored, file);
-        }
+        // Try to load from chrome.storage first, then fall back to sessionStorage
+        chrome.storage.local.get(['skippymd-content'], (result) => {
+            const stored = result['skippymd-content'] || sessionStorage.getItem('skippymd-content');
+            if (stored) {
+                renderMarkdown(stored, file);
+                // Clean up after loading
+                chrome.storage.local.remove(['skippymd-content']);
+            } else {
+                document.getElementById('markdown-content').innerHTML = '<p class="error">No content found. Please open a markdown file.</p>';
+            }
+        });
+        return; // Don't continue to showWelcome
     } else {
         showWelcome();
     }
@@ -160,8 +166,8 @@ function renderMarkdown(content, filename) {
     // Render markdown
     let html = md.render(content);
     
-    // Extract and render mermaid diagrams
-    const mermaidRegex = /<pre><code class="language-mermaid">[\s\S]*?<button class="copy-code"[^>]*>📋<\/button>([\s\S]*?)<\/code><\/pre>/g;
+    // Extract and render mermaid diagrams (simplified regex without copy button)
+    const mermaidRegex = /<pre><code class="language-mermaid">([\s\S]*?)<\/code><\/pre>/g;
     let mermaidIndex = 0;
     html = html.replace(mermaidRegex, (match, code) => {
         const cleanCode = code.replace(/<[^>]+>/g, '').trim();
@@ -172,6 +178,19 @@ function renderMarkdown(content, filename) {
     // Render content
     const contentEl = document.getElementById('markdown-content');
     contentEl.innerHTML = html;
+    
+    // Add copy buttons and hljs classes to code blocks
+    contentEl.querySelectorAll('pre code').forEach(codeEl => {
+        const preEl = codeEl.parentElement;
+        if (!preEl.classList.contains('mermaid-container')) {
+            preEl.classList.add('hljs');
+            const copyBtn = document.createElement('button');
+            copyBtn.className = 'copy-code';
+            copyBtn.title = 'Copy code';
+            copyBtn.textContent = '📋';
+            codeEl.insertBefore(copyBtn, codeEl.firstChild);
+        }
+    });
     
     // Update filename
     document.getElementById('current-file').textContent = filename || 'Untitled';

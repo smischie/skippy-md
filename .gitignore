@@ -26,3 +26,8 @@ node_modules/
 
 # Note: lib/ is INCLUDED (bundled dependencies)
 # Note: We ship all built files, no build step
+
+# Playwright
+test-results/
+playwright-report/
+.playwright-artifacts-*/

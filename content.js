@@ -86,12 +86,12 @@ function renderMarkdown() {
     const pre = document.querySelector('pre');
     const content = pre ? pre.textContent : document.body.textContent;
     
-    // Store content in session storage
-    sessionStorage.setItem('skippymd-content', content);
-    
-    // Redirect to viewer
-    const viewerURL = chrome.runtime.getURL('viewer.html') + '?file=' + encodeURIComponent(window.location.href);
-    window.location.href = viewerURL;
+    // Store content in chrome.storage.local instead of sessionStorage
+    chrome.storage.local.set({ 'skippymd-content': content }, () => {
+        // Redirect to viewer
+        const viewerURL = chrome.runtime.getURL('viewer.html') + '?file=' + encodeURIComponent(window.location.href);
+        window.location.href = viewerURL;
+    });
 }
 
 // Check if this page should be rendered
@@ -104,8 +104,9 @@ if (window.location.protocol === 'file:' && isMarkdownURL()) {
     const pre = document.querySelector('pre');
     if (pre) {
         const content = pre.textContent;
-        sessionStorage.setItem('skippymd-content', content);
-        const viewerURL = chrome.runtime.getURL('viewer.html') + '?file=' + encodeURIComponent(window.location.href);
-        window.location.href = viewerURL;
+        chrome.storage.local.set({ 'skippymd-content': content }, () => {
+            const viewerURL = chrome.runtime.getURL('viewer.html') + '?file=' + encodeURIComponent(window.location.href);
+            window.location.href = viewerURL;
+        });
     }
 }

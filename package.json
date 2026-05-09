@@ -1,0 +1,28 @@
+{
+  "name": "skippy-md",
+  "version": "1.0.0",
+  "description": "A full-featured, no-BS Markdown viewer for Chrome and Edge. View `.md` files with beautiful formatting, syntax highlighting, math equations, and diagrams — all locally, no accounts, no premium, no telemetry.",
+  "main": "content.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "DISPLAY=${DISPLAY:-:99} playwright test tests/extension.spec.js",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/smischie/skippy-md.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/smischie/skippy-md/issues"
+  },
+  "homepage": "https://github.com/smischie/skippy-md#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.59.1"
+  }
+}
