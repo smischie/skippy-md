@@ -416,29 +416,74 @@ document.getElementById('file-search').addEventListener('input', (e) => {
 function renderFileTree(files) {
     const tree = {};
     
+    // Build tree structure properly - skip root folder name
     files.forEach(file => {
-        const parts = file.webkitRelativePath.split('/');
+        const parts = file.webkitRelativePath.split('/').slice(1); // Skip root folder name
         let current = tree;
         
         for (let i = 0; i < parts.length; i++) {
             const part = parts[i];
             if (i === parts.length - 1) {
+                // It's a file - add to _files array
                 if (!current._files) current._files = [];
                 current._files.push({ name: part, file });
             } else {
-                if (!current[part]) current[part] = {};
+                // It's a folder - create nested object
+                if (!current[part]) {
+                    current[part] = { _count: 0 };
+                }
                 current = current[part];
             }
         }
     });
     
-    const treeHTML = buildTreeHTML(tree);
+    // Count files in each folder
+    function countFiles(node) {
+        let count = 0;
+        if (node._files) count += node._files.length;
+        Object.keys(node).filter(k => k !== '_files' && k !== '_count').forEach(key => {
+            count += countFiles(node[key]);
+        });
+        if (node._count !== undefined) node._count = count;
+        return count;
+    }
+    countFiles(tree);
+    
+    // Load expanded state from localStorage
+    const expandedState = JSON.parse(localStorage.getItem('skippymd-tree-expanded') || '{}');
+    
+    const treeHTML = buildTreeHTML(tree, 0, '', expandedState);
     document.getElementById('file-tree').innerHTML = treeHTML || '<p class="hint">No markdown files found</p>';
     
-    // Add click handlers
+    // Add click handlers for folders (toggle expand/collapse)
+    document.querySelectorAll('.folder-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const path = item.dataset.path;
+            const content = item.nextElementSibling;
+            const arrow = item.querySelector('.folder-arrow');
+            
+            if (content && content.classList.contains('folder-content')) {
+                const isExpanded = !content.classList.contains('collapsed');
+                content.classList.toggle('collapsed');
+                arrow.textContent = isExpanded ? '▶' : '▼';
+                
+                // Save state
+                expandedState[path] = !isExpanded;
+                localStorage.setItem('skippymd-tree-expanded', JSON.stringify(expandedState));
+            }
+        });
+    });
+    
+    // Add click handlers for files
     document.querySelectorAll('.file-item').forEach(item => {
         item.addEventListener('click', async (e) => {
-            e.preventDefault();
+            e.stopPropagation();
+            
+            // Remove previous active state
+            document.querySelectorAll('.file-item').forEach(f => f.classList.remove('active'));
+            item.classList.add('active');
+            
             const index = parseInt(item.dataset.index);
             const file = fileList[index];
             if (file) {
@@ -453,20 +498,42 @@ function renderFileTree(files) {
     });
 }
 
-function buildTreeHTML(node, depth = 0) {
+function buildTreeHTML(node, depth = 0, parentPath = '', expandedState = {}) {
     let html = '';
     
-    // Render directories
-    Object.keys(node).filter(k => k !== '_files').forEach(key => {
-        html += `<div class="folder-item" style="padding-left: ${depth * 20}px">📁 ${key}</div>`;
-        html += buildTreeHTML(node[key], depth + 1);
+    // Render directories first
+    const folders = Object.keys(node).filter(k => k !== '_files' && k !== '_count').sort();
+    folders.forEach(key => {
+        const path = parentPath ? `${parentPath}/${key}` : key;
+        const isExpanded = expandedState[path] || false;
+        const arrow = isExpanded ? '▼' : '▶';
+        const count = node[key]._count || 0;
+        const indent = depth * 20;
+        
+        html += `<div class="folder-item" data-path="${path}" style="padding-left: ${indent}px">`;
+        html += `<span class="folder-arrow">${arrow}</span>`;
+        html += `<span class="folder-icon">📁</span>`;
+        html += `<span class="folder-name">${key}</span>`;
+        html += `<span class="folder-count">(${count})</span>`;
+        html += `</div>`;
+        
+        // Render folder contents (collapsed by default)
+        const contentClass = isExpanded ? 'folder-content' : 'folder-content collapsed';
+        html += `<div class="${contentClass}">`;
+        html += buildTreeHTML(node[key], depth + 1, path, expandedState);
+        html += `</div>`;
     });
     
-    // Render files
+    // Render files at this level
     if (node._files) {
-        node._files.forEach(({ name, file }) => {
+        const files = node._files.sort((a, b) => a.name.localeCompare(b.name));
+        files.forEach(({ name, file }) => {
             const index = fileList.indexOf(file);
-            html += `<div class="file-item" data-index="${index}" style="padding-left: ${depth * 20}px">📄 ${name}</div>`;
+            const indent = depth * 20;
+            html += `<div class="file-item" data-index="${index}" style="padding-left: ${indent}px">`;
+            html += `<span class="file-icon">📄</span>`;
+            html += `<span class="file-name">${name}</span>`;
+            html += `</div>`;
         });
     }
     
@@ -483,5 +550,80 @@ window.addEventListener('scroll', () => {
     }
 });
 
+// Sidebar Resize Functionality
+function initSidebarResize() {
+    const tocSidebar = document.getElementById('sidebar-toc');
+    const filesSidebar = document.getElementById('sidebar-files');
+    const mainContent = document.getElementById('main-content');
+    
+    // Load saved widths
+    const savedTocWidth = localStorage.getItem('skippymd-toc-width');
+    const savedFilesWidth = localStorage.getItem('skippymd-files-width');
+    
+    if (savedTocWidth) {
+        tocSidebar.style.width = savedTocWidth + 'px';
+        document.documentElement.style.setProperty('--sidebar-width', savedTocWidth + 'px');
+    }
+    if (savedFilesWidth) {
+        filesSidebar.style.width = savedFilesWidth + 'px';
+    }
+    
+    // Create resize handles
+    const tocHandle = document.createElement('div');
+    tocHandle.className = 'resize-handle';
+    tocSidebar.appendChild(tocHandle);
+    
+    const filesHandle = document.createElement('div');
+    filesHandle.className = 'resize-handle';
+    filesSidebar.appendChild(filesHandle);
+    
+    // Setup resize handlers
+    setupResizeHandle(tocHandle, tocSidebar, (width) => {
+        localStorage.setItem('skippymd-toc-width', width);
+        document.documentElement.style.setProperty('--sidebar-width', width + 'px');
+        if (!mainContent.classList.contains('sidebar-collapsed')) {
+            mainContent.style.marginLeft = width + 'px';
+        }
+    });
+    
+    setupResizeHandle(filesHandle, filesSidebar, (width) => {
+        localStorage.setItem('skippymd-files-width', width);
+    });
+}
+
+function setupResizeHandle(handle, sidebar, onResize) {
+    let isResizing = false;
+    let startX = 0;
+    let startWidth = 0;
+    
+    handle.addEventListener('mousedown', (e) => {
+        isResizing = true;
+        startX = e.clientX;
+        startWidth = sidebar.offsetWidth;
+        document.body.style.cursor = 'col-resize';
+        document.body.style.userSelect = 'none';
+        e.preventDefault();
+    });
+    
+    document.addEventListener('mousemove', (e) => {
+        if (!isResizing) return;
+        
+        const delta = e.clientX - startX;
+        const newWidth = Math.max(200, Math.min(600, startWidth + delta));
+        sidebar.style.width = newWidth + 'px';
+    });
+    
+    document.addEventListener('mouseup', () => {
+        if (isResizing) {
+            isResizing = false;
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+            const finalWidth = sidebar.offsetWidth;
+            onResize(finalWidth);
+        }
+    });
+}
+
 // Initialize
 loadMarkdown();
+initSidebarResize();
