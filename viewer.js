@@ -1,5 +1,11 @@
 // SkippyMD Viewer - Main JavaScript
 
+// Global error handler - catch crashes BEFORE anything else
+window.addEventListener('error', function(e) {
+    const el = document.getElementById('markdown-content');
+    if (el) el.innerHTML = `<pre style="color:red;padding:20px;margin-top:60px">CRASH: ${e.message}\nat ${e.filename}:${e.lineno}:${e.colno}\n${e.error ? e.error.stack : ''}</pre>`;
+});
+
 // Initialize Mermaid
 mermaid.initialize({ 
     startOnLoad: false,
@@ -678,5 +684,14 @@ function setupResizeHandle(handle, sidebar, side, onResize) {
 }
 
 // Initialize
-loadMarkdown();
-initSidebarResize();
+try {
+    loadMarkdown();
+    initSidebarResize();
+} catch(e) {
+    document.getElementById('markdown-content').innerHTML = `<pre style="color:red;padding:20px">INIT ERROR: ${e.message}\n${e.stack}</pre>`;
+}
+
+window.onerror = function(msg, src, line, col, err) {
+    const el = document.getElementById('markdown-content');
+    if (el) el.innerHTML = `<pre style="color:red;padding:20px">UNCAUGHT: ${msg}\nat ${src}:${line}:${col}\n${err ? err.stack : ''}</pre>`;
+};
