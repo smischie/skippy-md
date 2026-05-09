@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "SkippyMD",
+  "name": "Skippy M.D.",
   "version": "1.0.0",
   "description": "A full-featured Markdown viewer with syntax highlighting, math equations, diagrams, and more",
   "permissions": [
