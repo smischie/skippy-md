@@ -251,6 +251,51 @@ function renderMarkdown(content, filename) {
         });
     }
     
+    // Intercept .md link clicks — load through viewer instead of navigating
+    contentEl.querySelectorAll('a[href]').forEach(link => {
+        const href = link.getAttribute('href');
+        if (href && (href.endsWith('.md') || href.endsWith('.markdown')) && !href.startsWith('http')) {
+            link.addEventListener('click', async (e) => {
+                e.preventDefault();
+                // Try to resolve from folder picker files first
+                if (fileList.length > 0) {
+                    const match = fileList.find(f => {
+                        const rel = f.webkitRelativePath || f.name;
+                        return rel.endsWith(href) || rel.endsWith('/' + href);
+                    });
+                    if (match) {
+                        const text = await match.text();
+                        renderMarkdown(text, match.name || href);
+                        document.querySelectorAll('.file-item').forEach(fi => fi.classList.remove('active'));
+                        const idx = fileList.indexOf(match);
+                        const el = document.querySelector(`.file-item[data-index="${idx}"]`);
+                        if (el) el.classList.add('active');
+                        window.scrollTo({ top: 0 });
+                        return;
+                    }
+                }
+                // Fall back to file:// resolution
+                if (fileParam) {
+                    const resolvedUrl = baseDir + href;
+                    try {
+                        const resp = await fetch(resolvedUrl);
+                        if (resp.ok) {
+                            const text = await resp.text();
+                            const newUrl = new URL(window.location.href);
+                            newUrl.searchParams.set('file', encodeURIComponent(resolvedUrl));
+                            history.pushState({}, '', newUrl);
+                            renderMarkdown(text, href.split('/').pop());
+                            window.scrollTo({ top: 0 });
+                            return;
+                        }
+                    } catch (err) {}
+                }
+                // Last resort: navigate normally
+                window.location.href = href;
+            });
+        }
+    });
+    
     // Render mermaid diagrams
     if (mermaidIndex > 0) {
         mermaid.run({
