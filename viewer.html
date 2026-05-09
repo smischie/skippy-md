@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkippyMD Viewer</title>
+    <link rel="stylesheet" href="lib/katex.min.css">
+    <link rel="stylesheet" id="highlight-theme" href="lib/highlight-dark.css">
+    <link rel="stylesheet" href="styles/viewer.css">
+</head>
+<body class="dark-theme">
+    <div id="header">
+        <div id="header-left">
+            <button id="toc-toggle" title="Toggle Table of Contents">☰</button>
+            <button id="folder-toggle" title="Toggle Folder Browser">📁</button>
+            <span id="current-file"></span>
+        </div>
+        <div id="header-right">
+            <button id="theme-toggle" title="Toggle Dark/Light Theme">🌙</button>
+            <button id="back-to-top" title="Back to Top">↑</button>
+        </div>
+    </div>
+
+    <div id="sidebar-toc" class="sidebar">
+        <div class="sidebar-header">
+            <h3>Table of Contents</h3>
+        </div>
+        <div id="toc-content"></div>
+    </div>
+
+    <div id="sidebar-files" class="sidebar hidden">
+        <div class="sidebar-header">
+            <h3>Files</h3>
+            <input type="file" id="folder-picker" webkitdirectory directory multiple style="display: none;">
+            <button id="open-folder-btn">Open Folder</button>
+        </div>
+        <div class="search-container">
+            <input type="text" id="file-search" placeholder="Search files...">
+        </div>
+        <div id="file-tree"></div>
+    </div>
+
+    <div id="main-content">
+        <article id="markdown-content"></article>
+    </div>
+
+    <div id="lightbox" class="hidden">
+        <span id="lightbox-close">×</span>
+        <img id="lightbox-img" src="" alt="">
+    </div>
+
+    <script src="lib/markdown-it.min.js"></script>
+    <script src="lib/markdown-it-footnote.min.js"></script>
+    <script src="lib/markdown-it-task-lists.min.js"></script>
+    <script src="lib/markdown-it-emoji.min.js"></script>
+    <script src="lib/highlight.min.js"></script>
+    <script src="lib/katex.min.js"></script>
+    <script src="lib/mermaid.min.js"></script>
+    <script src="viewer.js"></script>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkippyMD</title>
+    <style>
+        body {
+            width: 320px;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin: 0;
+        }
+        
+        h1 {
+            font-size: 24px;
+            margin: 0 0 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        p {
+            margin: 10px 0;
+            opacity: 0.95;
+            line-height: 1.6;
+        }
+        
+        button {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+            font-size: 14px;
+            transition: transform 0.2s;
+        }
+        
+        button:hover {
+            transform: scale(1.02);
+        }
+        
+        .theme-toggle {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .features {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .features h2 {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        
+        .features ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .features li {
+            padding: 5px 0;
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .features li::before {
+            content: "✓ ";
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🥫 SkippyMD</h1>
+    <p>A full-featured Markdown viewer with no BS.</p>
+    
+    <button id="open-viewer">Open Viewer</button>
+    <button id="theme-toggle" class="theme-toggle">Toggle Theme</button>
+    
+    <div class="features">
+        <h2>Features</h2>
+        <ul>
+            <li>GitHub Flavored Markdown</li>
+            <li>Syntax Highlighting</li>
+            <li>Math Equations (KaTeX)</li>
+            <li>Mermaid Diagrams</li>
+            <li>Emoji Support</li>
+            <li>Folder Browser</li>
+            <li>Dark/Light Themes</li>
+            <li>Table of Contents</li>
+        </ul>
+    </div>
+    
+    <script src="popup.js"></script>
+</body>
+</html>
