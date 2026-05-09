@@ -91,18 +91,30 @@ button:hover {
 .sidebar {
     position: fixed;
     top: var(--header-height);
-    left: 0;
     width: var(--sidebar-width);
     height: calc(100vh - var(--header-height));
     background: var(--bg-secondary);
-    border-right: 1px solid var(--border-color);
     overflow-y: auto;
     transition: transform 0.3s;
     z-index: 100;
 }
 
-.sidebar.collapsed {
+.sidebar-left {
+    left: 0;
+    border-right: 1px solid var(--border-color);
+}
+
+.sidebar-right {
+    right: 0;
+    border-left: 1px solid var(--border-color);
+}
+
+.sidebar-left.collapsed {
     transform: translateX(-100%);
+}
+
+.sidebar-right.collapsed {
+    transform: translateX(100%);
 }
 
 .sidebar.hidden {
@@ -287,15 +299,19 @@ button:hover {
 
 /* Main Content */
 #main-content {
-    margin-left: var(--sidebar-width);
+    margin-right: var(--sidebar-width);
     margin-top: var(--header-height);
     padding: 40px;
     max-width: 900px;
-    transition: margin-left 0.3s;
+    transition: margin-left 0.3s, margin-right 0.3s;
 }
 
-#main-content.sidebar-collapsed {
-    margin-left: 0;
+#main-content.toc-collapsed {
+    margin-right: 0;
+}
+
+#main-content.files-open {
+    margin-left: var(--sidebar-width);
 }
 
 /* Markdown Styles */

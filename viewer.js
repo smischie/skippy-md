@@ -374,19 +374,19 @@ document.getElementById('theme-toggle').addEventListener('click', () => {
 document.getElementById('toc-toggle').addEventListener('click', () => {
     const sidebar = document.getElementById('sidebar-toc');
     sidebar.classList.toggle('collapsed');
-    document.getElementById('main-content').classList.toggle('sidebar-collapsed');
+    document.getElementById('main-content').classList.toggle('toc-collapsed');
 });
 
 document.getElementById('folder-toggle').addEventListener('click', () => {
-    const tocSidebar = document.getElementById('sidebar-toc');
     const filesSidebar = document.getElementById('sidebar-files');
+    const mainContent = document.getElementById('main-content');
     
     if (filesSidebar.classList.contains('hidden')) {
         filesSidebar.classList.remove('hidden');
-        tocSidebar.classList.add('hidden');
+        mainContent.classList.add('files-open');
     } else {
         filesSidebar.classList.add('hidden');
-        tocSidebar.classList.remove('hidden');
+        mainContent.classList.remove('files-open');
     }
 });
 

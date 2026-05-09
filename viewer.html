@@ -21,14 +21,7 @@
         </div>
     </div>
 
-    <div id="sidebar-toc" class="sidebar">
-        <div class="sidebar-header">
-            <h3>Table of Contents</h3>
-        </div>
-        <div id="toc-content"></div>
-    </div>
-
-    <div id="sidebar-files" class="sidebar hidden">
+    <div id="sidebar-files" class="sidebar sidebar-left hidden">
         <div class="sidebar-header">
             <h3>Files</h3>
             <input type="file" id="folder-picker" webkitdirectory directory multiple style="display: none;">
@@ -38,10 +31,19 @@
             <input type="text" id="file-search" placeholder="Search files...">
         </div>
         <div id="file-tree"></div>
+        <div class="resize-handle resize-handle-right"></div>
     </div>
 
     <div id="main-content">
         <article id="markdown-content"></article>
+    </div>
+
+    <div id="sidebar-toc" class="sidebar sidebar-right">
+        <div class="resize-handle resize-handle-left"></div>
+        <div class="sidebar-header">
+            <h3>Table of Contents</h3>
+        </div>
+        <div id="toc-content"></div>
     </div>
 
     <div id="lightbox" class="hidden">
