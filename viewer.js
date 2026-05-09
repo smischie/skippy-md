@@ -53,6 +53,7 @@ let currentTheme = localStorage.getItem('skippymd-theme') || 'dark';
 let currentFolder = null;
 let fileList = [];
 let currentFileHandle = null;
+let currentDirHandle = null;
 
 // Apply theme on load
 document.body.className = `${currentTheme}-theme`;
@@ -240,16 +241,38 @@ function renderMarkdown(content, filename) {
     
     // Rebase relative image URLs to the source file's directory
     const fileParam = new URLSearchParams(window.location.search).get('file') || '';
-    if (fileParam) {
-        const decodedPath = decodeURIComponent(fileParam);
-        const baseDir = decodedPath.substring(0, decodedPath.lastIndexOf('/') + 1);
-        contentEl.querySelectorAll('img').forEach(img => {
-            const src = img.getAttribute('src');
-            if (src && !src.startsWith('http') && !src.startsWith('data:') && !src.startsWith('file:') && !src.startsWith('extension:')) {
-                img.src = baseDir + src;
+    const baseDir = fileParam ? decodeURIComponent(fileParam).substring(0, decodeURIComponent(fileParam).lastIndexOf('/') + 1) : '';
+    
+    // Fix images — fetch through extension and convert to blob URLs
+    contentEl.querySelectorAll('img').forEach(async (img) => {
+        const src = img.getAttribute('src');
+        if (!src || src.startsWith('data:') || src.startsWith('blob:')) return;
+        
+        // Try folder picker files first
+        if (currentDirHandle && src && !src.startsWith('http')) {
+            try {
+                const imgFile = await resolveFileFromDir(currentDirHandle, src);
+                if (imgFile) {
+                    img.src = URL.createObjectURL(imgFile);
+                    return;
+                }
+            } catch (e) {}
+        }
+        
+        // For file:// loaded docs, fetch the image via extension
+        if (baseDir && !src.startsWith('http')) {
+            const absUrl = src.startsWith('file:') ? src : baseDir + src;
+            try {
+                const resp = await fetch(absUrl);
+                if (resp.ok) {
+                    const blob = await resp.blob();
+                    img.src = URL.createObjectURL(blob);
+                }
+            } catch (e) {
+                console.warn('Image fetch failed:', absUrl, e);
             }
-        });
-    }
+        }
+    });
     
     // Intercept .md link clicks — load through viewer instead of navigating
     contentEl.querySelectorAll('a[href]').forEach(link => {
@@ -476,6 +499,7 @@ document.getElementById('open-folder-btn')?.addEventListener('click', async () =
     if (window.showDirectoryPicker) {
         try {
             const dirHandle = await window.showDirectoryPicker({ mode: 'read' });
+            currentDirHandle = dirHandle;
             const files = await collectMdFiles(dirHandle, dirHandle.name);
             fileList = files;
             renderFileTree(files);
@@ -505,6 +529,26 @@ async function collectMdFiles(dirHandle, basePath) {
         }
     }
     return files;
+}
+
+// Resolve a relative file path from a directory handle
+async function resolveFileFromDir(dirHandle, relativePath) {
+    // Normalize path: strip leading ./ or /
+    let parts = relativePath.replace(/^\.?\//, '').split('/');
+    let current = dirHandle;
+    for (let i = 0; i < parts.length - 1; i++) {
+        try {
+            current = await current.getDirectoryHandle(parts[i]);
+        } catch (e) {
+            return null;
+        }
+    }
+    try {
+        const fileHandle = await current.getFileHandle(parts[parts.length - 1]);
+        return await fileHandle.getFile();
+    } catch (e) {
+        return null;
+    }
 }
 
 document.getElementById('folder-picker')?.addEventListener('change', async (e) => {
