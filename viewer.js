@@ -383,10 +383,10 @@ document.getElementById('folder-toggle').addEventListener('click', () => {
     
     if (filesSidebar.classList.contains('hidden')) {
         filesSidebar.classList.remove('hidden');
-        mainContent.classList.add('files-open');
+        mainContent.style.marginLeft = filesSidebar.offsetWidth + 'px';
     } else {
         filesSidebar.classList.add('hidden');
-        mainContent.classList.remove('files-open');
+        mainContent.style.marginLeft = '0';
     }
 });
 
@@ -609,20 +609,23 @@ function initSidebarResize() {
     filesSidebar.appendChild(filesHandle);
     
     // Setup resize handlers
-    setupResizeHandle(tocHandle, tocSidebar, (width) => {
+    setupResizeHandle(tocHandle, tocSidebar, 'right', (width) => {
         localStorage.setItem('skippymd-toc-width', width);
         document.documentElement.style.setProperty('--sidebar-width', width + 'px');
-        if (!mainContent.classList.contains('sidebar-collapsed')) {
-            mainContent.style.marginLeft = width + 'px';
+        if (!tocSidebar.classList.contains('collapsed')) {
+            mainContent.style.marginRight = width + 'px';
         }
     });
     
-    setupResizeHandle(filesHandle, filesSidebar, (width) => {
+    setupResizeHandle(filesHandle, filesSidebar, 'left', (width) => {
         localStorage.setItem('skippymd-files-width', width);
+        if (!filesSidebar.classList.contains('hidden')) {
+            mainContent.style.marginLeft = width + 'px';
+        }
     });
 }
 
-function setupResizeHandle(handle, sidebar, onResize) {
+function setupResizeHandle(handle, sidebar, side, onResize) {
     let isResizing = false;
     let startX = 0;
     let startWidth = 0;
@@ -639,9 +642,16 @@ function setupResizeHandle(handle, sidebar, onResize) {
     document.addEventListener('mousemove', (e) => {
         if (!isResizing) return;
         
-        const delta = e.clientX - startX;
+        const delta = side === 'left' ? (e.clientX - startX) : (startX - e.clientX);
         const newWidth = Math.max(200, Math.min(600, startWidth + delta));
         sidebar.style.width = newWidth + 'px';
+        // Update content margin in real-time
+        const mainContent = document.getElementById('main-content');
+        if (side === 'left') {
+            mainContent.style.marginLeft = newWidth + 'px';
+        } else {
+            mainContent.style.marginRight = newWidth + 'px';
+        }
     });
     
     document.addEventListener('mouseup', () => {
