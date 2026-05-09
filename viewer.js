@@ -394,9 +394,40 @@ document.getElementById('back-to-top').addEventListener('click', () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
-document.getElementById('open-folder-btn').addEventListener('click', () => {
-    document.getElementById('folder-picker').click();
+document.getElementById('open-folder-btn').addEventListener('click', async () => {
+    if (window.showDirectoryPicker) {
+        try {
+            const dirHandle = await window.showDirectoryPicker({ mode: 'read' });
+            const files = await collectMdFiles(dirHandle, dirHandle.name);
+            fileList = files;
+            renderFileTree(files);
+        } catch (e) {
+            if (e.name !== 'AbortError') {
+                console.error('Folder picker error:', e);
+            }
+        }
+    } else {
+        // Fallback to webkitdirectory input
+        document.getElementById('folder-picker').click();
+    }
 });
+
+async function collectMdFiles(dirHandle, basePath) {
+    const files = [];
+    for await (const entry of dirHandle.values()) {
+        const entryPath = basePath + '/' + entry.name;
+        if (entry.kind === 'file' && entry.name.endsWith('.md')) {
+            const file = await entry.getFile();
+            // Attach webkitRelativePath equivalent for tree building
+            Object.defineProperty(file, 'webkitRelativePath', { value: entryPath, writable: false });
+            files.push(file);
+        } else if (entry.kind === 'directory' && !entry.name.startsWith('.')) {
+            const subFiles = await collectMdFiles(entry, entryPath);
+            files.push(...subFiles);
+        }
+    }
+    return files;
+}
 
 document.getElementById('folder-picker').addEventListener('change', async (e) => {
     const files = Array.from(e.target.files).filter(f => f.name.endsWith('.md'));
