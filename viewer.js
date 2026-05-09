@@ -231,7 +231,7 @@ function renderMarkdown(content, filename) {
             copyBtn.className = 'copy-code';
             copyBtn.title = 'Copy code';
             copyBtn.textContent = '📋';
-            codeEl.insertBefore(copyBtn, codeEl.firstChild);
+            preEl.appendChild(copyBtn);
         }
     });
     
@@ -348,7 +348,7 @@ function setupLightbox() {
 function setupCopyButtons() {
     document.querySelectorAll('.copy-code').forEach(button => {
         button.addEventListener('click', async () => {
-            const code = button.parentElement.textContent.replace('📋', '').trim();
+            const code = button.parentElement.querySelector('code').textContent.trim();
             try {
                 await navigator.clipboard.writeText(code);
                 button.textContent = '✓';
