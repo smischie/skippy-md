@@ -54,6 +54,7 @@ updateThemeElements();
 
 // Get markdown content from URL parameter or storage
 async function loadMarkdown() {
+    try {
     const params = new URLSearchParams(window.location.search);
     const url = params.get('url');
     const file = params.get('file');
@@ -67,18 +68,28 @@ async function loadMarkdown() {
             document.getElementById('markdown-content').innerHTML = `<p class="error">Failed to load: ${e.message}</p>`;
         }
     } else if (file) {
-        // Try to load from chrome.storage first, then fall back to sessionStorage
+        // Try to fetch the file directly first (works for file:// with extension permissions)
+        try {
+            const response = await fetch(decodeURIComponent(file));
+            if (response.ok) {
+                const text = await response.text();
+                renderMarkdown(text, file.split('/').pop());
+                return;
+            }
+        } catch (e) {
+            // fetch failed, fall through to storage
+        }
+        // Fall back to chrome.storage
         chrome.storage.local.get(['skippymd-content'], (result) => {
             const stored = result['skippymd-content'] || sessionStorage.getItem('skippymd-content');
             if (stored) {
                 renderMarkdown(stored, file);
-                // Clean up after loading
                 chrome.storage.local.remove(['skippymd-content']);
             } else {
                 document.getElementById('markdown-content').innerHTML = '<p class="error">No content found. Please open a markdown file.</p>';
             }
         });
-        return; // Don't continue to showWelcome
+        return;
     } else {
         showWelcome();
     }
@@ -88,6 +99,9 @@ async function loadMarkdown() {
     if (lastFolder) {
         // Can't auto-restore folder due to security, just show message
         document.getElementById('file-tree').innerHTML = '<p class="hint">Click "Open Folder" to browse markdown files</p>';
+    }
+    } catch (err) {
+        document.getElementById('markdown-content').innerHTML = `<p class="error">Error: ${err.message}<br><pre>${err.stack}</pre></p>`;
     }
 }
 
