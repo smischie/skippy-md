@@ -155,12 +155,32 @@ graph TD
 }
 
 function renderMarkdown(content, filename) {
-    // Process math first (before markdown-it)
+    // First, protect code blocks from math processing
+    // Extract fenced code blocks and replace with placeholders
+    const codeBlocks = [];
+    content = content.replace(/^(`{3,})[^\n]*\n[\s\S]*?^\1$/gm, (match) => {
+        codeBlocks.push(match);
+        return `%%CODEBLOCK_${codeBlocks.length - 1}%%`;
+    });
+    // Also protect inline code
+    content = content.replace(/`[^`]+`/g, (match) => {
+        codeBlocks.push(match);
+        return `%%CODEBLOCK_${codeBlocks.length - 1}%%`;
+    });
+    
+    // Process math (now safe from code blocks)
     content = content.replace(/\$\$([\s\S]+?)\$\$/g, (match, tex) => {
         return '<div class="math-block">' + mathBlock(tex) + '</div>';
     });
-    content = content.replace(/\$(.+?)\$/g, (match, tex) => {
+    content = content.replace(/(?<!\\)\$([^\$\n]+?)\$/g, (match, tex) => {
+        // Skip if it looks like a dollar amount (e.g., $100)
+        if (/^\d/.test(tex)) return match;
         return '<span class="math-inline">' + mathInline(tex) + '</span>';
+    });
+    
+    // Restore code blocks
+    content = content.replace(/%%CODEBLOCK_(\d+)%%/g, (match, idx) => {
+        return codeBlocks[parseInt(idx)];
     });
     
     // Render markdown
