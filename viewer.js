@@ -521,9 +521,7 @@ function renderFileTree(files) {
                 const text = await file.text();
                 renderMarkdown(text, file.name);
                 
-                // Switch back to TOC sidebar
-                document.getElementById('sidebar-files').classList.add('hidden');
-                document.getElementById('sidebar-toc').classList.remove('hidden');
+                // Keep file browser open, just render the file
             }
         });
     });
