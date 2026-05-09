@@ -378,7 +378,7 @@ function updateThemeElements() {
 }
 
 // Event Handlers
-document.getElementById('theme-toggle').addEventListener('click', () => {
+document.getElementById('theme-toggle')?.addEventListener('click', () => {
     currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
     document.body.className = `${currentTheme}-theme`;
     localStorage.setItem('skippymd-theme', currentTheme);
@@ -391,13 +391,13 @@ document.getElementById('theme-toggle').addEventListener('click', () => {
     }
 });
 
-document.getElementById('toc-toggle').addEventListener('click', () => {
+document.getElementById('toc-toggle')?.addEventListener('click', () => {
     const sidebar = document.getElementById('sidebar-toc');
     sidebar.classList.toggle('collapsed');
     document.getElementById('main-content').classList.toggle('toc-collapsed');
 });
 
-document.getElementById('folder-toggle').addEventListener('click', () => {
+document.getElementById('folder-toggle')?.addEventListener('click', () => {
     const filesSidebar = document.getElementById('sidebar-files');
     const mainContent = document.getElementById('main-content');
     
@@ -410,11 +410,11 @@ document.getElementById('folder-toggle').addEventListener('click', () => {
     }
 });
 
-document.getElementById('back-to-top').addEventListener('click', () => {
+document.getElementById('back-to-top')?.addEventListener('click', () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
-document.getElementById('open-folder-btn').addEventListener('click', async () => {
+document.getElementById('open-folder-btn')?.addEventListener('click', async () => {
     if (window.showDirectoryPicker) {
         try {
             const dirHandle = await window.showDirectoryPicker({ mode: 'read' });
@@ -449,13 +449,13 @@ async function collectMdFiles(dirHandle, basePath) {
     return files;
 }
 
-document.getElementById('folder-picker').addEventListener('change', async (e) => {
+document.getElementById('folder-picker')?.addEventListener('change', async (e) => {
     const files = Array.from(e.target.files).filter(f => f.name.endsWith('.md'));
     fileList = files;
     renderFileTree(files);
 });
 
-document.getElementById('file-search').addEventListener('input', (e) => {
+document.getElementById('file-search')?.addEventListener('input', (e) => {
     const query = e.target.value.toLowerCase();
     const filtered = fileList.filter(f => 
         f.name.toLowerCase().includes(query) || 
