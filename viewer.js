@@ -238,6 +238,19 @@ function renderMarkdown(content, filename) {
     // Update filename
     document.getElementById('current-file').textContent = filename || 'Untitled';
     
+    // Rebase relative image URLs to the source file's directory
+    const fileParam = new URLSearchParams(window.location.search).get('file') || '';
+    if (fileParam) {
+        const decodedPath = decodeURIComponent(fileParam);
+        const baseDir = decodedPath.substring(0, decodedPath.lastIndexOf('/') + 1);
+        contentEl.querySelectorAll('img').forEach(img => {
+            const src = img.getAttribute('src');
+            if (src && !src.startsWith('http') && !src.startsWith('data:') && !src.startsWith('file:') && !src.startsWith('extension:')) {
+                img.src = baseDir + src;
+            }
+        });
+    }
+    
     // Render mermaid diagrams
     if (mermaidIndex > 0) {
         mermaid.run({
