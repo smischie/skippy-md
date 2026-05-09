@@ -170,7 +170,10 @@ function renderMarkdown(content, filename) {
     const mermaidRegex = /<pre><code class="language-mermaid">([\s\S]*?)<\/code><\/pre>/g;
     let mermaidIndex = 0;
     html = html.replace(mermaidRegex, (match, code) => {
-        const cleanCode = code.replace(/<[^>]+>/g, '').trim();
+        // Create a temporary element to decode HTML entities
+        const tempEl = document.createElement('div');
+        tempEl.innerHTML = code;
+        const cleanCode = tempEl.textContent.trim();
         const id = `mermaid-${mermaidIndex++}`;
         return `<div class="mermaid-container"><div id="${id}" class="mermaid">${cleanCode}</div></div>`;
     });

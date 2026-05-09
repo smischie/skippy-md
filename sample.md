@@ -51,18 +51,18 @@ Auto-linked URL: https://example.com
 
 ### JavaScript
 
-\`\`\`javascript
+```javascript
 function fibonacci(n) {
     if (n <= 1) return n;
     return fibonacci(n - 1) + fibonacci(n - 2);
 }
 
 console.log(fibonacci(10)); // Output: 55
-\`\`\`
+```
 
 ### Python
 
-\`\`\`python
+```python
 def quicksort(arr):
     if len(arr) <= 1:
         return arr
@@ -73,27 +73,27 @@ def quicksort(arr):
     return quicksort(left) + middle + quicksort(right)
 
 print(quicksort([3, 6, 8, 10, 1, 2, 1]))
-\`\`\`
+```
 
 ### Bash
 
-\`\`\`bash
+```bash
 #!/bin/bash
 for i in {1..5}; do
     echo "Iteration $i"
 done
-\`\`\`
+```
 
 ### JSON
 
-\`\`\`json
+```json
 {
   "name": "SkippyMD",
   "version": "1.0.0",
   "features": ["markdown", "math", "diagrams"],
   "awesome": true
 }
-\`\`\`
+```
 
 ## Tables
 
@@ -140,11 +140,12 @@ $$
 a & b \\
 c & d
 \end{bmatrix}
+\;
 \begin{bmatrix}
 x \\
 y
 \end{bmatrix}
-=
+\;=\;
 \begin{bmatrix}
 ax + by \\
 cx + dy
@@ -155,7 +156,7 @@ $$
 
 ### Flowchart
 
-\`\`\`mermaid
+```mermaid
 graph TD
     A[Start] --> B{Is Markdown?}
     B -->|Yes| C[Render with SkippyMD]
@@ -165,11 +166,11 @@ graph TD
     E --> G[Share with friends]
     F --> G
     G --> H[End]
-\`\`\`
+```
 
 ### Sequence Diagram
 
-\`\`\`mermaid
+```mermaid
 sequenceDiagram
     participant User
     participant Browser
@@ -185,11 +186,11 @@ sequenceDiagram
     SkippyMD->>SkippyMD: Generate diagrams
     SkippyMD-->>Browser: Beautiful output
     Browser-->>User: Display rendered page
-\`\`\`
+```
 
 ### Gantt Chart
 
-\`\`\`mermaid
+```mermaid
 gantt
     title SkippyMD Development Timeline
     dateFormat  YYYY-MM-DD
@@ -202,11 +203,11 @@ gantt
     section Phase 3
     Polish             :a5, after a4, 5d
     Release            :milestone, after a5, 0d
-\`\`\`
+```
 
 ### Pie Chart
 
-\`\`\`mermaid
+```mermaid
 pie title Time Spent on Features
     "Markdown Parsing" : 25
     "Syntax Highlighting" : 20
@@ -214,11 +215,11 @@ pie title Time Spent on Features
     "Mermaid Integration" : 20
     "UI/UX Design" : 15
     "Testing" : 5
-\`\`\`
+```
 
 ### State Diagram
 
-\`\`\`mermaid
+```mermaid
 stateDiagram-v2
     [*] --> Idle
     Idle --> Loading: Open file
@@ -229,7 +230,7 @@ stateDiagram-v2
     Error --> Idle: Reset
     Display --> Idle: Close file
     Display --> [*]
-\`\`\`
+```
 
 ## Emoji Support
 
@@ -259,10 +260,10 @@ And another with a second footnote[^2].
    
    Some explanation here.
    
-   \`\`\`python
+   ```python
    def example():
        return "nested code"
-   \`\`\`
+   ```
    
    - Sub-point A
    - Sub-point B with inline math: $\alpha = \beta + \gamma$
