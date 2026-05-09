@@ -1,0 +1,28 @@
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.settings/
+
+# Temp files
+*.log
+*.tmp
+.cache/
+
+# Node (even though we don't use it, just in case)
+node_modules/
+
+# Note: lib/ is INCLUDED (bundled dependencies)
+# Note: We ship all built files, no build step
